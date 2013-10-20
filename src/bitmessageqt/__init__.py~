@@ -2845,22 +2845,11 @@ class MyForm(QtGui.QMainWindow):
         if currentRow >= 0:
             addressAtCurrentRow = self.ui.tableWidgetAddressBook.item(
                 currentRow, 1).text()
-            tmpLabel = str(self.ui.tableWidgetAddressBook.item(currentRow, 0).text().toUtf8())
-            if (tmpLabel.isspace() or tmpLabel == ''):
-                self.statusBar().showMessage(_translate(
-                    "MainWindow", "Error: Label should contain at least one non-space character."))
-            else:
-                queryreturn = sqlQuery('''select * from addressbook where label=?''', tmpLabel)
-                if queryreturn == []:
-                    sqlExecute('''UPDATE addressbook set label=? WHERE address=?''',
-                        tmpLabel,
-                        str(addressAtCurrentRow))
-                    self.rerenderInboxFromLabels()
-                    self.rerenderSentToLabels()
-                else:
-                    self.statusBar().showMessage(_translate(
-                        "MainWindow", "Error: You cannot add the same label to your address book twice. Try renaming the new one if you want."))
-            self.rerenderAddressBook()
+            sqlExecute('''UPDATE addressbook set label=? WHERE address=?''',
+                       str(self.ui.tableWidgetAddressBook.item(currentRow, 0).text().toUtf8()),
+                       str(addressAtCurrentRow))
+        self.rerenderInboxFromLabels()
+        self.rerenderSentToLabels()
 
     def tableWidgetSubscriptionsItemChanged(self):
         currentRow = self.ui.tableWidgetSubscriptions.currentRow()
