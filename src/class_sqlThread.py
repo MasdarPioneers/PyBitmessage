@@ -30,6 +30,7 @@ class sqlThread(threading.Thread):
                 '''CREATE TABLE sent (msgid blob, toaddress text, toripe blob, fromaddress text, subject text, message text, ackdata blob, lastactiontime integer, status text, pubkeyretrynumber integer, msgretrynumber integer, folder text, encodingtype int)''' )
             self.cur.execute(
                 '''CREATE TABLE subscriptions (label text, address text, enabled bool)''' )
+            
             self.cur.execute(
                 '''CREATE TABLE addressbook (label text, address text)''' )
             self.cur.execute(
@@ -99,6 +100,27 @@ class sqlThread(threading.Thread):
             shared.config.set('bitmessagesettings', 'settingsversion', '3')
             with open(shared.appdata + 'keys.dat', 'wb') as configfile:
                 shared.config.write(configfile)
+                
+        ## ## ## Nadia                        
+        # if shared.config.getint('bitmessagesettings', 'settingsversion') > 1 :                                     
+        #    item = '''ALTER TABLE addressbook ADD 'group' text DEFAULT ' ' '''
+        #   parameters = ''
+        #  self.cur.execute(item, parameters)
+        
+        ## ## ## Nadia 
+        try:
+            item = '''ALTER TABLE addressbook ADD 'group' text DEFAULT ' ' '''
+            parameters = ''
+            self.cur.execute(item, parameters)
+        
+        except:
+            pass # handle the error
+            #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Do Nothing")
+        ## ## ## End Nadia                 
+
+
+
+
 
         # People running earlier versions of PyBitmessage do not have the
         # encodingtype field in their inbox and sent tables or the read field
@@ -107,6 +129,7 @@ class sqlThread(threading.Thread):
             item = '''ALTER TABLE inbox ADD encodingtype int DEFAULT '2' '''
             parameters = ''
             self.cur.execute(item, parameters)
+            
 
             item = '''ALTER TABLE inbox ADD read bool DEFAULT '1' '''
             parameters = ''

@@ -17,6 +17,8 @@ from bitmessageui import *
 from namecoin import namecoinConnection, ensureNamecoinOptions
 from newaddressdialog import *
 from newsubscriptiondialog import *
+        ## ## ## Nadia
+from newGroupdialog import *
 from regenerateaddresses import *
 from newchandialog import *
 from specialaddressbehavior import *
@@ -219,7 +221,12 @@ class MyForm(QtGui.QMainWindow):
 
         # Popup menu for the Address Book page
         self.ui.addressBookContextMenuToolbar = QtGui.QToolBar()
-          # Actions
+        # Actions
+        ## ## ## Nadia
+        self.actionAddressBookGroupSend = self.ui.addressBookContextMenuToolbar.addAction(_translate(
+            "MainWindow", "Send message to this group"), self.on_action_AddressBookGroupSend)
+           
+           
         self.actionAddressBookSend = self.ui.addressBookContextMenuToolbar.addAction(_translate(
             "MainWindow", "Send message to this address"), self.on_action_AddressBookSend)
         self.actionAddressBookClipboard = self.ui.addressBookContextMenuToolbar.addAction(_translate(
@@ -235,6 +242,11 @@ class MyForm(QtGui.QMainWindow):
         self.connect(self.ui.tableWidgetAddressBook, QtCore.SIGNAL(
             'customContextMenuRequested(const QPoint&)'), self.on_context_menuAddressBook)
         self.popMenuAddressBook = QtGui.QMenu(self)
+        
+        ## ## ## Nadia
+        self.popMenuAddressBook.addAction(self.actionAddressBookGroupSend)
+
+
         self.popMenuAddressBook.addAction(self.actionAddressBookSend)
         self.popMenuAddressBook.addAction(self.actionAddressBookClipboard)
         self.popMenuAddressBook.addAction( self.actionAddressBookSubscribe )
@@ -244,7 +256,9 @@ class MyForm(QtGui.QMainWindow):
 
         # Popup menu for the Subscriptions page
         self.ui.subscriptionsContextMenuToolbar = QtGui.QToolBar()
-          # Actions
+        
+        
+        # Actions
         self.actionsubscriptionsNew = self.ui.subscriptionsContextMenuToolbar.addAction(
             _translate("MainWindow", "New"), self.on_action_SubscriptionsNew)
         self.actionsubscriptionsDelete = self.ui.subscriptionsContextMenuToolbar.addAction(
@@ -270,7 +284,7 @@ class MyForm(QtGui.QMainWindow):
 
         # Popup menu for the Sent page
         self.ui.sentContextMenuToolbar = QtGui.QToolBar()
-          # Actions
+        # Actions
         self.actionTrashSentMessage = self.ui.sentContextMenuToolbar.addAction(_translate(
             "MainWindow", "Move to Trash"), self.on_action_SentTrash)
         self.actionSentClipboard = self.ui.sentContextMenuToolbar.addAction(_translate(
@@ -287,7 +301,7 @@ class MyForm(QtGui.QMainWindow):
 
         # Popup menu for the Blacklist page
         self.ui.blacklistContextMenuToolbar = QtGui.QToolBar()
-          # Actions
+        # Actions
         self.actionBlacklistNew = self.ui.blacklistContextMenuToolbar.addAction(_translate(
             "MainWindow", "Add new entry"), self.on_action_BlacklistNew)
         self.actionBlacklistDelete = self.ui.blacklistContextMenuToolbar.addAction(_translate(
@@ -1487,12 +1501,12 @@ class MyForm(QtGui.QMainWindow):
                     toLabel, = row
                     self.ui.tableWidgetSent.item(
                         i, 0).setText(unicode(toLabel, 'utf-8'))
-
+    ## ## ## Nadia
     def rerenderAddressBook(self):
         self.ui.tableWidgetAddressBook.setRowCount(0)
         queryreturn = sqlQuery('SELECT * FROM addressbook')
         for row in queryreturn:
-            label, address = row
+            label, address, group = row
             self.ui.tableWidgetAddressBook.insertRow(0)
             newItem = QtGui.QTableWidgetItem(unicode(label, 'utf-8'))
             self.ui.tableWidgetAddressBook.setItem(0, 0, newItem)
@@ -1500,7 +1514,15 @@ class MyForm(QtGui.QMainWindow):
             newItem.setFlags(
                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
             self.ui.tableWidgetAddressBook.setItem(0, 1, newItem)
-
+            
+            
+            newItem = QtGui.QTableWidgetItem(unicode(group, 'utf-8'))
+            newItem.setFlags(
+                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+            self.ui.tableWidgetAddressBook.setItem(0, 2, newItem)
+            
+    ## ## ## End Nadia   
+            
     def rerenderSubscriptions(self):
         self.ui.tableWidgetSubscriptions.setRowCount(0)
         queryreturn = sqlQuery('SELECT label, address, enabled FROM subscriptions')
@@ -1852,22 +1874,28 @@ class MyForm(QtGui.QMainWindow):
         self.ui.tableWidgetInbox.setSortingEnabled(True)
         self.ubuntuMessagingMenuUpdate(True, newItem, toLabel)
 
+
+## ## ## Nadia
     def click_pushButtonAddAddressBook(self):
-        self.NewSubscriptionDialogInstance = NewSubscriptionDialog(self)
-        if self.NewSubscriptionDialogInstance.exec_():
-            if self.NewSubscriptionDialogInstance.ui.labelSubscriptionAddressCheck.text() == _translate("MainWindow", "Address is valid."):
+        self.NewGroupDialogInstance = NewGroupDialog(self)
+        if self.NewGroupDialogInstance.exec_():
+            if self.NewGroupDialogInstance.ui.labelSubscriptionAddressCheck.text() == _translate("MainWindow", "Address is valid."):
                 # First we must check to see if the address is already in the
                 # address book. The user cannot add it again or else it will
                 # cause problems when updating and deleting the entry.
                 address = addBMIfNotPresent(str(
-                    self.NewSubscriptionDialogInstance.ui.lineEditSubscriptionAddress.text()))
-                label = self.NewSubscriptionDialogInstance.ui.newsubscriptionlabel.text().toUtf8()
-                self.addEntryToAddressBook(address,label)
+                    self.NewGroupDialogInstance.ui.lineEditSubscriptionAddress.text()))
+                label = self.NewGroupDialogInstance.ui.newsubscriptionlabel.text().toUtf8()
+                                
+                
+                group = self.NewGroupDialogInstance.ui.lineEditGroupName.text().toUtf8()
+                self.addEntryToAddressBook(address,label, group)
+                
             else:
                 self.statusBar().showMessage(_translate(
                     "MainWindow", "The address you entered was invalid. Ignoring it."))
-
-    def addEntryToAddressBook(self,address,label):
+    ## ## ## Nadia
+    def addEntryToAddressBook(self,address,label,group):
         queryreturn = sqlQuery('''select * from addressbook where address=?''', address)
         if queryreturn == []:
             self.ui.tableWidgetAddressBook.setSortingEnabled(False)
@@ -1878,13 +1906,21 @@ class MyForm(QtGui.QMainWindow):
             newItem.setFlags(
                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
             self.ui.tableWidgetAddressBook.setItem(0, 1, newItem)
+            
+            newItem = QtGui.QTableWidgetItem(unicode(group, 'utf-8'))
+            self.ui.tableWidgetAddressBook.setItem(0, 2, newItem)
+            
+            
             self.ui.tableWidgetAddressBook.setSortingEnabled(True)
-            sqlExecute('''INSERT INTO addressbook VALUES (?,?)''', str(label), address)
+            sqlExecute('''INSERT INTO addressbook VALUES (?,?,?)''', str(label), address,str(group))
             self.rerenderInboxFromLabels()
             self.rerenderSentToLabels()
         else:
             self.statusBar().showMessage(_translate(
                         "MainWindow", "Error: You cannot add the same address to your address book twice. Try renaming the existing one if you want."))
+
+        ## ## ## End Nadia
+
 
     def addSubscription(self, address, label):
         address = addBMIfNotPresent(address)
@@ -2470,6 +2506,46 @@ class MyForm(QtGui.QMainWindow):
         clipboard.setText(str(addressAtCurrentRow))
 
     # Group of functions for the Address Book dialog box
+    
+    ## ## ## Nadia
+    def on_action_AddressBookGroupSend(self):
+        currentRow = self.ui.tableWidgetAddressBook.currentRow()         
+        groupAtCurrentRow = self.ui.tableWidgetAddressBook.item(
+                currentRow, 2).text().toUtf8()
+        #Group name not specified        
+        if groupAtCurrentRow == '':
+            addressAtCurrentRow = self.ui.tableWidgetAddressBook.item(currentRow, 1).text()
+            if self.ui.lineEditTo.text() == '':
+                self.ui.lineEditTo.setText(str(addressAtCurrentRow))
+            else:
+                self.ui.lineEditTo.setText(str(self.ui.lineEditTo.text()) + '; ' + str(addressAtCurrentRow))           
+            self.statusBar().showMessage('')
+            self.ui.tabWidget.setCurrentIndex(1)    
+        
+        # there is a Group name
+        else:
+            currenrtAddress = ''
+            #groupToLookup = str(self.ui.tableWidgetAddressBook.item(currentRow, 2).data(Qt.UserRole).toPyObject())
+            currentRow = self.ui.tableWidgetAddressBook.currentRow()
+            groupToLookup = self.ui.tableWidgetAddressBook.item(currentRow, 2).text().toUtf8()
+
+            selectAddressesQuery = sqlQuery('''SELECT address FROM addressbook where "group" =?''', str(groupToLookup))
+                     
+            if selectAddressesQuery != []:
+                for addresses in selectAddressesQuery:
+                    currenrtAddress, = addresses      
+                    if self.ui.lineEditTo.text() == '':
+                        self.ui.lineEditTo.setText(currenrtAddress)
+                    else:
+                        self.ui.lineEditTo.setText(str(self.ui.lineEditTo.text()) + '; ' + currenrtAddress)
+                self.statusBar().showMessage('')
+                self.ui.tabWidget.setCurrentIndex(1)   
+
+    ## ## ## End Nadia          
+    
+         
+
+
     def on_action_AddressBookNew(self):
         self.click_pushButtonAddAddressBook()
 
@@ -3161,6 +3237,41 @@ class NewSubscriptionDialog(QtGui.QDialog):
             self.ui.labelSubscriptionAddressCheck.setText(
                 _translate("MainWindow", "Address is valid."))
 
+    ## ## ## Nadia
+class NewGroupDialog(QtGui.QDialog):
+
+    def __init__(self, parent):
+        QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_NewGroupDialog()
+        self.ui.setupUi(self)
+        self.parent = parent
+        QtCore.QObject.connect(self.ui.lineEditSubscriptionAddress, QtCore.SIGNAL(
+            "textChanged(QString)"), self.subscriptionAddressChanged)
+
+    def subscriptionAddressChanged(self, QString):
+        status, a, b, c = decodeAddress(str(QString))
+        if status == 'missingbm':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "The address should start with ''BM-''"))
+        elif status == 'checksumfailed':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "The address is not typed or copied correctly (the checksum failed)."))
+        elif status == 'versiontoohigh':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "The version number of this address is higher than this software can support. Please upgrade Bitmessage."))
+        elif status == 'invalidcharacters':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "The address contains invalid characters."))
+        elif status == 'ripetooshort':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "Some data encoded in the address is too short."))
+        elif status == 'ripetoolong':
+            self.ui.labelSubscriptionAddressCheck.setText(_translate(
+                "MainWindow", "Some data encoded in the address is too long."))
+        elif status == 'success':
+            self.ui.labelSubscriptionAddressCheck.setText(
+                _translate("MainWindow", "Address is valid."))
+    ## ## ## End Nadia   
 
 class NewAddressDialog(QtGui.QDialog):
 

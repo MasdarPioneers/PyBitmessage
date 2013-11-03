@@ -324,18 +324,31 @@ class Ui_MainWindow(object):
         self.tableWidgetAddressBook.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.tableWidgetAddressBook.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidgetAddressBook.setObjectName(_fromUtf8("tableWidgetAddressBook"))
-        self.tableWidgetAddressBook.setColumnCount(2)
+        
+        ## ## ## Nadia
+        self.tableWidgetAddressBook.setColumnCount(3)
         self.tableWidgetAddressBook.setRowCount(0)
         item = QtGui.QTableWidgetItem()
         self.tableWidgetAddressBook.setHorizontalHeaderItem(0, item)
         item = QtGui.QTableWidgetItem()
         self.tableWidgetAddressBook.setHorizontalHeaderItem(1, item)
+        
+        ## ## ## Nadia
+        item = QtGui.QTableWidgetItem()
+        self.tableWidgetAddressBook.setHorizontalHeaderItem(2, item)
+
+
         self.tableWidgetAddressBook.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidgetAddressBook.horizontalHeader().setDefaultSectionSize(400)
         self.tableWidgetAddressBook.horizontalHeader().setHighlightSections(False)
         self.tableWidgetAddressBook.horizontalHeader().setStretchLastSection(True)
         self.tableWidgetAddressBook.verticalHeader().setVisible(False)
-        self.gridLayout_5.addWidget(self.tableWidgetAddressBook, 2, 0, 1, 2)
+       
+        ## ## ## Nadia
+        self.gridLayout_5.addWidget(self.tableWidgetAddressBook, 3, 0, 1, 3)
+
+
+   
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(_fromUtf8(":/newPrefix/images/addressbook.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.addressbook, icon6, _fromUtf8(""))
@@ -605,6 +618,12 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "Name or Label", None))
         item = self.tableWidgetAddressBook.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "Address", None))
+        
+        ## ## ## Nadia
+        item = self.tableWidgetAddressBook.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "Group", None))
+
+
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.addressbook), _translate("MainWindow", "Address Book", None))
         self.radioButtonBlacklist.setText(_translate("MainWindow", "Use a Blacklist (Allow all incoming messages except those on the Blacklist)", None))
         self.radioButtonWhitelist.setText(_translate("MainWindow", "Use a Whitelist (Block all incoming messages except those on the Whitelist)", None))

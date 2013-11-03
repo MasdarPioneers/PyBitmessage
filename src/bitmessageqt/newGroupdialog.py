@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newsubscriptiondialog.ui'
 #
-# Created: Sat Nov 02 04:23:29 2013
+# Created: Tue Oct 22 18:30:26 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,10 +23,10 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_NewSubscriptionDialog(object):
+class Ui_NewGroupDialog(object):
     def setupUi(self, NewSubscriptionDialog):
         NewSubscriptionDialog.setObjectName(_fromUtf8("NewSubscriptionDialog"))
-        NewSubscriptionDialog.resize(482, 186)
+        NewSubscriptionDialog.resize(482, 231)
         self.formLayout = QtGui.QFormLayout(NewSubscriptionDialog)
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
@@ -46,16 +46,22 @@ class Ui_NewSubscriptionDialog(object):
         self.formLayout.setWidget(5, QtGui.QFormLayout.SpanningRole, self.lineEditSubscriptionAddress)
         spacerItem1 = QtGui.QSpacerItem(20, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.formLayout.setItem(7, QtGui.QFormLayout.FieldRole, spacerItem1)
-        self.labelSubscriptionAddressCheck = QtGui.QLabel(NewSubscriptionDialog)
-        self.labelSubscriptionAddressCheck.setText(_fromUtf8(""))
-        self.labelSubscriptionAddressCheck.setWordWrap(True)
-        self.labelSubscriptionAddressCheck.setObjectName(_fromUtf8("labelSubscriptionAddressCheck"))
-        self.formLayout.setWidget(8, QtGui.QFormLayout.SpanningRole, self.labelSubscriptionAddressCheck)
+        self.label_3 = QtGui.QLabel(NewSubscriptionDialog)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.label_3)
+        self.lineEditGroupName = QtGui.QLineEdit(NewSubscriptionDialog)
+        self.lineEditGroupName.setObjectName(_fromUtf8("lineEditGroupName"))
+        self.formLayout.setWidget(9, QtGui.QFormLayout.SpanningRole, self.lineEditGroupName)
         self.buttonBox = QtGui.QDialogButtonBox(NewSubscriptionDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.formLayout.setWidget(9, QtGui.QFormLayout.FieldRole, self.buttonBox)
+        self.formLayout.setWidget(11, QtGui.QFormLayout.FieldRole, self.buttonBox)
+        self.labelSubscriptionAddressCheck = QtGui.QLabel(NewSubscriptionDialog)
+        self.labelSubscriptionAddressCheck.setText(_fromUtf8(""))
+        self.labelSubscriptionAddressCheck.setWordWrap(True)
+        self.labelSubscriptionAddressCheck.setObjectName(_fromUtf8("labelSubscriptionAddressCheck"))
+        self.formLayout.setWidget(10, QtGui.QFormLayout.SpanningRole, self.labelSubscriptionAddressCheck)
 
         self.retranslateUi(NewSubscriptionDialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), NewSubscriptionDialog.accept)
@@ -66,6 +72,7 @@ class Ui_NewSubscriptionDialog(object):
         NewSubscriptionDialog.setWindowTitle(_translate("NewSubscriptionDialog", "Add new entry", None))
         self.label_2.setText(_translate("NewSubscriptionDialog", "Label", None))
         self.label.setText(_translate("NewSubscriptionDialog", "Address", None))
+        self.label_3.setText(_translate("NewSubscriptionDialog", "Group Name", None))
 
 
 if __name__ == "__main__":
