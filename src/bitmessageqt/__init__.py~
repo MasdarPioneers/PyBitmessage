@@ -573,20 +573,39 @@ class MyForm(QtGui.QMainWindow):
             toAddress, fromAddress, subject, message, status, ackdata, lastactiontime = row
             subject = shared.fixPotentiallyInvalidUTF8Data(subject)
             message = shared.fixPotentiallyInvalidUTF8Data(message)
-            try:
-                fromLabel = shared.config.get(fromAddress, 'label')
-            except:
-                fromLabel = ''
+            ### Abdulla edit ###
+            fromLabel = ''
+            queryreturn = sqlQuery(
+                '''select label from addressbook where address=?''', fromAddress)
+            if queryreturn != []:
+                for row in queryreturn:
+                    fromLabel, = row
+                    
+            if fromLabel == '':
+                try:
+                    fromLabel = shared.config.get(fromAddress, 'label')
+                except:
+                    fromLabel = ''
+            
             if fromLabel == '':
                 fromLabel = fromAddress
-
+                              
             toLabel = ''
             queryreturn = sqlQuery(
                 '''select label from addressbook where address=?''', toAddress)
-
             if queryreturn != []:
                 for row in queryreturn:
                     toLabel, = row
+                    
+            if toLabel == '':
+                try:
+                    toLabel = shared.config.get(toAddress, 'label')
+                except:
+                    toLabel = ''
+                    
+            if toLabel == '':
+                toLabel = toAddress
+            ### Abdulla edit ###
 
             self.ui.tableWidgetSent.insertRow(0)
             if toLabel == '':
@@ -695,20 +714,29 @@ class MyForm(QtGui.QMainWindow):
             msgid, toAddress, fromAddress, subject, received, message, read = row
             subject = shared.fixPotentiallyInvalidUTF8Data(subject)
             message = shared.fixPotentiallyInvalidUTF8Data(message)
-            try:
-                if toAddress == self.str_broadcast_subscribers:
-                    toLabel = self.str_broadcast_subscribers
-                else:
+            ### Abdulla edit ###            
+            toLabel = ''
+            if toAddress == self.str_broadcast_subscribers:
+                toLabel = self.str_broadcast_subscribers
+                
+            if toLabel == '':
+                queryreturn = sqlQuery(
+                    '''select label from addressbook where address=?''', toAddress)
+                if queryreturn != []:
+                    for row in queryreturn:
+                        toLabel, = row
+            if toLabel == '':
+                try:
                     toLabel = shared.config.get(toAddress, 'label')
-            except:
-                toLabel = ''
+                except:
+                    toLabel = ''
+            
             if toLabel == '':
                 toLabel = toAddress
 
             fromLabel = ''
             queryreturn = sqlQuery(
                 '''select label from addressbook where address=?''', fromAddress)
-
             if queryreturn != []:
                 for row in queryreturn:
                     fromLabel, = row
@@ -720,6 +748,13 @@ class MyForm(QtGui.QMainWindow):
                 if queryreturn != []:
                     for row in queryreturn:
                         fromLabel, = row
+
+            if fromLabel == '':
+                try:
+                    fromLabel = shared.config.get(fromAddress, 'label')
+                except:
+                    fromLabel = ''
+            ### Abdulla edit ###                
 
             self.ui.tableWidgetInbox.insertRow(0)
             newItem = QtGui.QTableWidgetItem(unicode(toLabel, 'utf-8'))
@@ -1416,41 +1451,67 @@ class MyForm(QtGui.QMainWindow):
         if exitAfterUserClicksOk:
             os._exit(0)
 
+    ### Abdulla edit ###
     def rerenderInboxFromLabels(self):
         for i in range(self.ui.tableWidgetInbox.rowCount()):
-            addressToLookup = str(self.ui.tableWidgetInbox.item(
+            fromAddress = str(self.ui.tableWidgetInbox.item(
                 i, 1).data(Qt.UserRole).toPyObject())
             fromLabel = ''
             queryreturn = sqlQuery(
-                '''select label from addressbook where address=?''', addressToLookup)
+                '''select label from addressbook where address=?''', fromAddress)
 
             if queryreturn != []:
                 for row in queryreturn:
                     fromLabel, = row
-                    self.ui.tableWidgetInbox.item(
-                        i, 1).setText(unicode(fromLabel, 'utf-8'))
-            else:
+                        
+            if fromLabel == '':
                 # It might be a broadcast message. We should check for that
                 # label.
                 queryreturn = sqlQuery(
-                    '''select label from subscriptions where address=?''', addressToLookup)
+                    '''select label from subscriptions where address=?''', fromAddress)
 
                 if queryreturn != []:
                     for row in queryreturn:
                         fromLabel, = row
-                        self.ui.tableWidgetInbox.item(
-                            i, 1).setText(unicode(fromLabel, 'utf-8'))
+                        
+            if fromLabel == '':
+                try:
+                    fromLabel = shared.config.get(fromAddress, 'label')
+                except:
+                    fromLabel = ''
+            
+            if fromLabel == '':
+                fromLabel = fromAddress
+            
+            self.ui.tableWidgetInbox.item(
+                i, 1).setText(unicode(fromLabel, 'utf-8'))
 
     def rerenderInboxToLabels(self):
         for i in range(self.ui.tableWidgetInbox.rowCount()):
             toAddress = str(self.ui.tableWidgetInbox.item(
                 i, 0).data(Qt.UserRole).toPyObject())
-            try:
-                toLabel = shared.config.get(toAddress, 'label')
-            except:
-                toLabel = ''
+                
+            ### Abdulla edit ###
+            toLabel = ''
+            if toAddress == self.str_broadcast_subscribers:
+                toLabel = self.str_broadcast_subscribers
+                
+            if toLabel == '':
+                queryreturn = sqlQuery(
+                    '''select label from addressbook where address=?''', toAddress)
+                if queryreturn != []:
+                    for row in queryreturn:
+                        toLabel, = row
+            if toLabel == '':
+                try:
+                    toLabel = shared.config.get(toAddress, 'label')
+                except:
+                    toLabel = ''
+            
             if toLabel == '':
                 toLabel = toAddress
+            ### Abdulla edit ###
+            
             self.ui.tableWidgetInbox.item(
                 i, 0).setText(unicode(toLabel, 'utf-8'))
             # Set the color according to whether it is the address of a mailing
@@ -1465,28 +1526,46 @@ class MyForm(QtGui.QMainWindow):
         for i in range(self.ui.tableWidgetSent.rowCount()):
             fromAddress = str(self.ui.tableWidgetSent.item(
                 i, 1).data(Qt.UserRole).toPyObject())
-            try:
-                fromLabel = shared.config.get(fromAddress, 'label')
-            except:
-                fromLabel = ''
+            ### Abdulla edit ###
+            fromLabel = ''
+            queryreturn = sqlQuery(
+                    '''select label from addressbook where address=?''', fromAddress)
+            if queryreturn != []:
+                for row in queryreturn:
+                    fromLabel, = row
+            if fromLabel == '':
+                try:
+                    fromLabel = shared.config.get(fromAddress, 'label')
+                except:
+                    fromLabel = ''
+            
             if fromLabel == '':
                 fromLabel = fromAddress
+            ### Abdulla edit ###
             self.ui.tableWidgetSent.item(
                 i, 1).setText(unicode(fromLabel, 'utf-8'))
 
     def rerenderSentToLabels(self):
         for i in range(self.ui.tableWidgetSent.rowCount()):
-            addressToLookup = str(self.ui.tableWidgetSent.item(
+            toAddress = str(self.ui.tableWidgetSent.item(
                 i, 0).data(Qt.UserRole).toPyObject())
             toLabel = ''
             queryreturn = sqlQuery(
-                '''select label from addressbook where address=?''', addressToLookup)
+                '''select label from addressbook where address=?''', toAddress)
 
             if queryreturn != []:
                 for row in queryreturn:
                     toLabel, = row
-                    self.ui.tableWidgetSent.item(
-                        i, 0).setText(unicode(toLabel, 'utf-8'))
+            else:
+                try:
+                    toLabel = shared.config.get(toAddress, 'label')
+                except:
+                    toLabel = ''
+            if toLabel == '':
+                toLabel = toAddress
+            ### Abdulla edit ###
+            self.ui.tableWidgetSent.item(
+                i, 0).setText(unicode(toLabel, 'utf-8'))
 
     def rerenderAddressBook(self):
         self.ui.tableWidgetAddressBook.setRowCount(0)
@@ -1601,13 +1680,20 @@ class MyForm(QtGui.QMainWindow):
                             1,
                             'sent',
                             2)
-
+                        
+                        ### Abdulla edit ###
                         toLabel = ''
                         queryreturn = sqlQuery('''select label from addressbook where address=?''',
                                                toAddress)
                         if queryreturn != []:
                             for row in queryreturn:
                                 toLabel, = row
+                        else:
+                            try:
+                                toLabel = shared.config.get(toAddress, 'label')
+                            except:
+                                toLabel = ''
+                        ### Abdulla edit ###
 
                         self.displayNewSentMessage(
                             toAddress, toLabel, fromAddress, subject, message, ackdata)
@@ -1746,13 +1832,23 @@ class MyForm(QtGui.QMainWindow):
     def displayNewSentMessage(self, toAddress, toLabel, fromAddress, subject, message, ackdata):
         subject = shared.fixPotentiallyInvalidUTF8Data(subject)
         message = shared.fixPotentiallyInvalidUTF8Data(message)
-        try:
-            fromLabel = shared.config.get(fromAddress, 'label')
-        except:
-            fromLabel = ''
+        ### Abdulla edit ###
+        fromLabel = ''
+        queryreturn = sqlQuery(
+            '''select label from addressbook where address=?''', fromAddress)
+        if queryreturn != []:
+            for row in queryreturn:
+                fromLabel, = row
+                
+        if fromLabel == '':
+            try:
+                fromLabel = shared.config.get(fromAddress, 'label')
+            except:
+                fromLabel = ''
+                
         if fromLabel == '':
             fromLabel = fromAddress
-
+        ### Abdulla edit ###                
         self.ui.tableWidgetSent.setSortingEnabled(False)
         self.ui.tableWidgetSent.insertRow(0)
         if toLabel == '':
@@ -1799,7 +1895,8 @@ class MyForm(QtGui.QMainWindow):
         if queryreturn != []:
             for row in queryreturn:
                 fromLabel, = row
-        else:
+
+        if fromLabel == '':
             # There might be a label in the subscriptions table
             queryreturn = sqlQuery(
                 '''select label from subscriptions where address=?''', fromAddress)
@@ -1807,13 +1904,28 @@ class MyForm(QtGui.QMainWindow):
                 for row in queryreturn:
                     fromLabel, = row
 
-        try:
-            if toAddress == self.str_broadcast_subscribers:
-                toLabel = self.str_broadcast_subscribers
-            else:
+        if fromLabel == '':
+            try:
+                fromLabel = shared.config.get(fromAddress, 'label')
+            except:
+                fromLabel = ''
+
+        toLabel = ''
+        if toAddress == self.str_broadcast_subscribers:
+            toLabel = self.str_broadcast_subscribers
+            
+        if toLabel == '':
+            queryreturn = sqlQuery(
+                '''select label from addressbook where address=?''', toAddress)
+            if queryreturn != []:
+                for row in queryreturn:
+                    toLabel, = row
+        if toLabel == '':
+            try:
                 toLabel = shared.config.get(toAddress, 'label')
-        except:
-            toLabel = ''
+            except:
+                toLabel = ''
+        
         if toLabel == '':
             toLabel = toAddress
 
@@ -1896,7 +2008,9 @@ class MyForm(QtGui.QMainWindow):
                     sqlExecute('''INSERT INTO addressbook VALUES (?,?)''', str(label), address)
                     self.rerenderAddressBook()
                     self.rerenderInboxFromLabels()
+                    self.rerenderInboxToLabels()  ### Abdulla edit ###
                     self.rerenderSentToLabels()
+                    self.rerenderSentFromLabels() ### Abdulla edit ###
             else:
                 self.statusBar().showMessage(_translate(
                     "MainWindow", "Error: You cannot add the same label to your address book twice. Try renaming the new one if you want."))            
@@ -1921,6 +2035,7 @@ class MyForm(QtGui.QMainWindow):
         #Add to database (perhaps this should be separated from the MyForm class)
         sqlExecute('''INSERT INTO subscriptions VALUES (?,?,?)''',str(label),address,True)
         self.rerenderInboxFromLabels()
+        self.rerenderInboxToLabels()  ### Abdulla edit ###
         shared.reloadBroadcastSendersForWhichImWatching()
 
     def click_pushButtonAddSubscription(self):
@@ -2245,6 +2360,7 @@ class MyForm(QtGui.QMainWindow):
             with open(shared.appdata + 'keys.dat', 'wb') as configfile:
                 shared.config.write(configfile)
             self.rerenderInboxToLabels()
+            self.rerenderInboxFromLabels()  ### Abdulla edit ###
 
     def click_NewAddressDialog(self):
         self.dialog = NewAddressDialog(self)
@@ -2426,7 +2542,9 @@ class MyForm(QtGui.QMainWindow):
                 "MainWindow", "Entry added to the Address Book. Edit the label to your liking."))
             self.rerenderAddressBook()
             self.rerenderInboxFromLabels()
-            self.rerenderSentToLabels()            
+            self.rerenderInboxToLabels()  ### Abdulla edit ###
+            self.rerenderSentToLabels()
+            self.rerenderSentFromLabels() ### Abdulla edit ###
         else:
             self.statusBar().showMessage(_translate(
                 "MainWindow", "Error: You cannot add the same address to your address book twice. Try renaming the existing one if you want."))
@@ -2520,7 +2638,9 @@ class MyForm(QtGui.QMainWindow):
                        str(labelAtCurrentRow), str(addressAtCurrentRow))
             self.ui.tableWidgetAddressBook.removeRow(currentRow)
             self.rerenderInboxFromLabels()
+            self.rerenderInboxToLabels()  ### Abdulla edit ###
             self.rerenderSentToLabels()
+            self.rerenderSentFromLabels() ### Abdulla edit ###
 
     def on_action_AddressBookClipboard(self):
         fullStringOfAddresses = ''
@@ -2591,6 +2711,7 @@ class MyForm(QtGui.QMainWindow):
                    str(labelAtCurrentRow), str(addressAtCurrentRow))
         self.ui.tableWidgetSubscriptions.removeRow(currentRow)
         self.rerenderInboxFromLabels()
+        self.rerenderInboxToLabels()  ### Abdulla edit ###
         shared.reloadBroadcastSendersForWhichImWatching()
 
     def on_action_SubscriptionsClipboard(self):
@@ -2835,21 +2956,35 @@ class MyForm(QtGui.QMainWindow):
             with open(shared.appdata + 'keys.dat', 'wb') as configfile:
                 shared.config.write(configfile)
             self.rerenderComboBoxSendFrom()
-            # self.rerenderInboxFromLabels()
+            self.rerenderInboxFromLabels() ### Abdulla edit ###
             self.rerenderInboxToLabels()
             self.rerenderSentFromLabels()
-            # self.rerenderSentToLabels()
+            self.rerenderSentToLabels() ### Abdulla edit ###
 
     def tableWidgetAddressBookItemChanged(self):
         currentRow = self.ui.tableWidgetAddressBook.currentRow()
         if currentRow >= 0:
             addressAtCurrentRow = self.ui.tableWidgetAddressBook.item(
                 currentRow, 1).text()
-            sqlExecute('''UPDATE addressbook set label=? WHERE address=?''',
-                       str(self.ui.tableWidgetAddressBook.item(currentRow, 0).text().toUtf8()),
-                       str(addressAtCurrentRow))
-        self.rerenderInboxFromLabels()
-        self.rerenderSentToLabels()
+            tmpLabel = str(self.ui.tableWidgetAddressBook.item(currentRow, 0).text().toUtf8())
+            if (tmpLabel.isspace() or tmpLabel == ''):
+                self.statusBar().showMessage(_translate(
+                    "MainWindow", "Error: Label should contain at least one non-space character."))
+            else:
+                queryreturn = sqlQuery('''select * from addressbook where label=?''', tmpLabel)
+                if queryreturn == []:
+                    sqlExecute('''UPDATE addressbook set label=? WHERE address=?''',
+                        tmpLabel,
+                        str(addressAtCurrentRow))
+                    self.rerenderInboxFromLabels()
+                    self.rerenderInboxToLabels()  ### Abdulla edit ###
+                    self.rerenderSentToLabels()
+                    self.rerenderSentFromLabels() ### Abdulla edit ###
+                    
+                else:
+                    self.statusBar().showMessage(_translate(
+                        "MainWindow", "Error: You cannot add the same label to your address book twice. Try renaming the new one if you want."))
+            self.rerenderAddressBook()
 
     def tableWidgetSubscriptionsItemChanged(self):
         currentRow = self.ui.tableWidgetSubscriptions.currentRow()
@@ -2860,7 +2995,9 @@ class MyForm(QtGui.QMainWindow):
                        str(self.ui.tableWidgetSubscriptions.item(currentRow, 0).text().toUtf8()),
                        str(addressAtCurrentRow))
         self.rerenderInboxFromLabels()
+        self.rerenderInboxToLabels()  ### Abdulla edit ###
         self.rerenderSentToLabels()
+        self.rerenderSentFromLabels() ### Abdulla edit ###
 
     def writeNewAddressToTable(self, label, address, streamNumber):
         self.ui.tableWidgetYourIdentities.setSortingEnabled(False)
